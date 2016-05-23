@@ -7,3 +7,4 @@ module.exports = (db) => {
     password: passwordModel
   };
 }
+ 

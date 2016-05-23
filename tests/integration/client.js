@@ -1,7 +1,7 @@
 var request = require('request');
 var config = require('./../config');
 
-var baseUrl = 'http://' +  config.get('host') + ':' + config.get('port') + '/api/';
+var baseUrl = 'http://' +  config.get('host') + ':' + config.get('port') + '/';
 
 module.exports = request.defaults({
   baseUrl : baseUrl,

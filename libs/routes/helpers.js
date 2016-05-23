@@ -16,6 +16,8 @@ module.exports.onPromise = (getPromise) => {
         res.json(ok);
       },
       (err) => {
+        console.log(err);
+        console.log(err.stack);
         res.statusCode = 500;
         res.json({
           error: err

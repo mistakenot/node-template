@@ -7,24 +7,25 @@ var config = require('./../config/config');
 var log = require('./log')(module);
 //var oauth2 = require('./auth/oauth2');
 
-//var api = require('./routes/api');
 var loadDb = require('./db/mongoose')(
   config.get('mongoose:uri'),
   config.get('mongoose:mockgoose')
 );
 
 var getApp = (db) => {
+
   var app = middleware(express());
 
-  var models = require(libs + 'models/models')(db);
-  var services = require(libs + 'services/services')(models);
-  var routes = require(libs + 'routes/routes')(services);
-  console.log(">>>>");
+  var models = require('./models')(db);
+  var services = require('./services')(models);
+  var routes = require('./routes')(services);
+
   //var oauth2 = require('./auth/oauth2');
 
   // app routes
-  app.use('/api/users', routes.users);
-  //app.use('/api', api);
+  app.use('/', routes.default)
+  app.use('/users', routes.users);
+
   //app.use('/api/articles', articles);
   //app.use('/api/oauth/token', oauth2.token);
 
