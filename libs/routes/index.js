@@ -1,9 +1,11 @@
 module.exports = (services) => {
-  var defaultRoutes = require('./default-routes');
+  var indexRoutes = require('./index-routes');
   var userRoutes = require('./user-routes')(services.users);
+  var oauthRoutes = require('./oauth-routes')(services.oauth);
 
   return {
-    default: defaultRoutes,
-    users: userRoutes
+    index: indexRoutes,
+    users: userRoutes,
+    oauth: oauthRoutes
   };
 }

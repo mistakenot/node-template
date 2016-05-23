@@ -1,15 +1,16 @@
 var passport = require('passport');
 var BearerStrategy = require('passport-http-bearer').Strategy;
+var LocalStrategy = require('passport-local').Strategy;
 
 var libs = process.cwd() + '/libs/';
 var config = require(libs + 'config');
 
 var User = require(libs + 'models/user-model');
-var Client = require(libs + 'model/client');
 var AccessToken = require(libs + 'model/accessToken');
-var RefreshToken = require(libs + 'model/refreshToken');
 
 module.exports = (User, AccessToken) => {
+	passport.use(new LocalStrategy(User.authenticate()));
+
 	passport.use(new BearerStrategy((accessToken, done) => {
 			AccessToken.findOne({ token: accessToken }, (err, token) => {
 				if (err) {
@@ -40,11 +41,7 @@ module.exports = (User, AccessToken) => {
 						});
 					}
 
-					var info = {
-						scope: '*'
-					};
-
-					done(null, user, info);
+					done(null, user, { scope: '*' });
 				});
 
 			});

@@ -3,7 +3,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var methodOverride = require('method-override');
-// require(libs + 'auth/auth');
 
 module.exports = (app) => {
 

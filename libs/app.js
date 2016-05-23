@@ -19,10 +19,9 @@ var getApp = (db) => {
   var models = require('./models')(db);
   var services = require('./services')(models);
   var routes = require('./routes')(services);
-  var oauth2 = require('./auth/oauth2');
 
   // app routes
-  app.use('/', routes.default)
+  app.use('/', routes.index)
   app.use('/users', routes.users);
 
   //app.use('/api/articles', articles);
@@ -53,9 +52,8 @@ var getApp = (db) => {
   return app;
 }
 
-var result = loadDb
-  .then(db => {
-    return getApp(db);
-  });
+var result = loadDb.then(db => {
+  return getApp(db);
+});
 
 module.exports = result;

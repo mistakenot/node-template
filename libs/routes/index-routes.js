@@ -10,6 +10,7 @@ router.get('/test_auth', passport.authenticate('bearer', { session: false }), fu
 });
 
 router.get('/', (req, res) => {
+  // Replace with rendered home page
   res.json({
     now: new Date().toJSON(),
     msg: 'OK'

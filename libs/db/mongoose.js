@@ -23,7 +23,6 @@ module.exports = function(uri, mocked) {
 				});
 			});
 		}
-
 		else {
 			mongoose.connect(uri, err => {
 				if (err) {
