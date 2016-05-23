@@ -19,8 +19,7 @@ var getApp = (db) => {
   var models = require('./models')(db);
   var services = require('./services')(models);
   var routes = require('./routes')(services);
-
-  //var oauth2 = require('./auth/oauth2');
+  var oauth2 = require('./auth/oauth2');
 
   // app routes
   app.use('/', routes.default)
