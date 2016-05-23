@@ -1,7 +1,7 @@
 import Auth from './auth';
 import Users from './users';
 
-module.exports = (config) => {
+module.exports.apply = (config) => {
   Auth(config);
   Users(config);
 }

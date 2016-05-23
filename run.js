@@ -11,4 +11,4 @@ var server = app.listen(app.get('port'), function() {
   log.info('Express server listening on port ' + app.get('port'));
 });
 
-module.exports.kill = server.close;
+module.exports.kill = () => server.close();

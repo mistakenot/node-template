@@ -1,4 +1,4 @@
-import ApplyRoutes from './routes';
+import Routes from './routes';
 
 export default function() {
 
