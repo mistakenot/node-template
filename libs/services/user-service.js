@@ -2,48 +2,30 @@ var libs = process.cwd() + '/libs/';
 var log = require('./../log')(module);
 var _ = require('lodash');
 
-module.exports = function(User, Password) {
+module.exports = function(User) {
   var projection = 'username _id';
 
   return {
     createWithPassword(username, password) {
       return new Promise((resolve, reject) => {
-        User.findOne({ username: username }, projection, (err, existingUser) => {
-
-          if (err != null) {
-            return reject(err);
+        User.register({ username: username }, password, (error, user) => {
+          if (error != null) {
+            return reject(error);
           }
-
-          if (existingUser) {
-            return reject('User already exists');
+          else {
+            return resolve(user);
           }
-
-          if (password === undefined) {
-            return reject("Password is undefined.");
-          }
-
-          var user = new User({
-            username: username,
-            password: password
-          });
-
-          user.save((error, user, affected) => {
-            if (error) {
-              reject(error);
-            }
-
-            if (affected != 1) {
-              reject('Operation returned rows affected: ' + affected);
-            }
-
-            resolve(user);
-          });
         })
       });
     },
 
     getByUsername(username) {
-      return User.findOne({ username: username }, projection).exec();
+      return new Promise((resolve, reject) => {
+        User.findByUsername(username, (error, user) => {
+          if (error) return reject(error);
+          else return resolve(user);
+        });
+      });
     },
 
     getById(id, privateFields) {
@@ -54,8 +36,8 @@ module.exports = function(User, Password) {
           } else {
             resolve(user);
           }
-        })
-      })
+        });
+      });
     }
 
   }

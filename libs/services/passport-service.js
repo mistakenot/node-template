@@ -5,11 +5,10 @@ var LocalStrategy = require('passport-local').Strategy;
 var libs = process.cwd() + '/libs/';
 var config = require(libs + 'config');
 
-var User = require(libs + 'models/user-model');
-var AccessToken = require(libs + 'model/accessToken');
-
 module.exports = (User, AccessToken) => {
 	passport.use(new LocalStrategy(User.authenticate()));
+	passport.serializeUser(User.serializeUser());
+	passport.deserializeUser(User.deserializeUser());
 
 	passport.use(new BearerStrategy((accessToken, done) => {
 			AccessToken.findOne({ token: accessToken }, (err, token) => {

@@ -45,7 +45,13 @@ module.exports = (service) => {
 					};
 				});
 		})
-	)
+	);
+
+	router.get('/tokenFromCredentials',
+		r.onPromise(req => {
+			
+		})
+	);
 
 	return router;
 }

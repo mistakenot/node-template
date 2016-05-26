@@ -5,14 +5,16 @@ var log = load.log(module);
 describe('User service', () => {
   var username = faker.internet.email();
   var password = faker.internet.password();
-  var service, retrievedUser;
+  var service, retrievedUser, User;
 
   beforeAll(done => {
     db.connect().then(mongoose => {
-      var User = load.model('user')(mongoose);
+      User = load.model('user')(mongoose);
       service = load.service('user')(User);
+      expect(service).not.toEqual(undefined);
       done();
-    });
+    })
+    .catch(fail);
   });
 
   afterAll(db.disconnect);

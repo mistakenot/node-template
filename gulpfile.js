@@ -6,15 +6,25 @@ var jasmine = require('gulp-jasmine');
 var asyncPipe = require('gulp-async-func-runner');
 
 gulp.task('utests', () => {
-  gulp
+  return gulp
     .src('tests/unit/**')
-    .pipe(jasmine());
+    .pipe(
+      jasmine({
+        verbose: true,
+        includesStackTrace: true
+      })
+    );
 });
 
 gulp.task('itests', () => {
-  gulp
+  return gulp
     .src('tests/integration/**')
-    .pipe(jasmine());
+    .pipe(
+      jasmine({
+        verbose: true,
+        includesStackTrace: true
+      })
+    );
 });
 
 gulp.task('tests', ['utests', 'itests']);

@@ -1,17 +1,25 @@
 var crypto = require('crypto');
 var log = require('./../log')(module);
 var passportLocalMongoose = require('passport-local-mongoose-email');
+var UserModel;
 
 module.exports = function(mongoose) {
-	var	Schema = mongoose.Schema;
-	var User = new Schema({
-		created: {
-			type: Date,
-			default: Date.now
-		}
-	});
 
-	User.plugin(passportLocalMongoose);
+	if (!UserModel) {
+		var	Schema = mongoose.Schema;
+		var User = new Schema({
+			created: {
+				type: Date,
+				default: Date.now
+			}
+		});
 
-	return mongoose.model('User', User);
+		User.plugin(passportLocalMongoose, {
+			usernameField: 'username'
+		});
+
+		UserModel = mongoose.model('User', User);
+	}
+
+	return UserModel;
 }
