@@ -10,8 +10,10 @@ module.exports.connect = function () {
           if (err) {
             throw err;
           }
-          db = mongoose;
-          return resolve(mongoose);
+          if (db === null) {
+            db = mongoose;
+          }
+          return resolve(db);
         });
       });
     }
