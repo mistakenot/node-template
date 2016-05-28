@@ -8,9 +8,11 @@ var r = require('./helpers');
 
 module.exports = (service) => {
 
-	router.get('/me', passport.authenticate('bearer', {
-			session: false
-		}),
+	router.get('/me',
+		passport.authenticate('local', {
+	    successRedirect: '/',
+	    failureRedirect: '/unauthorized'
+	  }),
 		function(req, res) {
 			// req.authInfo is set using the `info` argument supplied by
 			// `BearerStrategy`.  It is typically used to indicate scope of the token,
@@ -41,17 +43,24 @@ module.exports = (service) => {
 				.then(u => {
 					return {
 						username: u.username,
-						id: u._id
+						id: u._id,
+						authToken: u.authToken
 					};
 				});
 		})
 	);
 
-	router.get('/tokenFromCredentials',
+	router.get('/verify/:token',
 		r.onPromise(req => {
-			
+			return service.verify(req.params.token);
 		})
 	);
+
+	router.get('/unauthorized', (req, res) => {
+		res.json({
+			'Unauthorised': 'Ahh'
+		});
+	});
 
 	return router;
 }

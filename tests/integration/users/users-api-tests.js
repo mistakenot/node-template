@@ -10,32 +10,40 @@ var ok = (code, next) => {
 }
 
 describe('User API', () => {
-  describe('can create and retrieve a user', () => {
-    var id, user = {
-      username: faker.internet.email(),
-      password: faker.internet.password()
-    };
+  var id, token, user = {
+    username: faker.internet.email(),
+    password: faker.internet.password()
+  };
 
-    it('creates a new user with POST', done => {
-      request.post({url: '/users/', body: JSON.stringify(user)},
-        ok(200, body => {
-          expect(body.username).toEqual(user.username);
-          expect(body.id).toBeDefined();
-          id = body.id;
-          done(body);
-        })
-      )
-    });
+  it('creates a new user with POST', done => {
+    request.post({url: '/users/', body: JSON.stringify(user)},
+      ok(200, body => {
+        expect(body.username).toEqual(user.username);
+        expect(body.id).toBeDefined();
+        id = body.id;
+        token = body.authToken;
+        done(body);
+      })
+    )
+  });
 
-    it('retrieves an existing user with GET', done => {
-      request.get({url: '/users/' + id},
-        ok(200, body => {
-          expect(body.username).toEqual(user.username);
-          expect(body.id).toEqual(id);
-          done();
-        })
-      )
-    });
-
+  it('verifies a new user with GET', done => {
+    var url = '/users/verify/' + token;
+    request.get({url: url},
+      ok(200, body => {
+        expect(body.username).toEqual(user.username);
+        done();
+      })
+    )
   })
+
+  it('retrieves an existing user with GET', done => {
+    request.get({url: '/users/' + id},
+      ok(200, body => {
+        expect(body.username).toEqual(user.username);
+        expect(body.id).toEqual(id);
+        done();
+      })
+    )
+  });
 });

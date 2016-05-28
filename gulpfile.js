@@ -6,6 +6,7 @@ var jasmine = require('gulp-jasmine');
 var asyncPipe = require('gulp-async-func-runner');
 
 gulp.task('utests', () => {
+  console.log("Starting unit tests...");
   return gulp
     .src('tests/unit/**')
     .pipe(
@@ -16,7 +17,8 @@ gulp.task('utests', () => {
     );
 });
 
-gulp.task('itests', () => {
+gulp.task('itests', ['start-server'], () => {
+  console.log("Starting integration tests...");
   return gulp
     .src('tests/integration/**')
     .pipe(
@@ -25,6 +27,14 @@ gulp.task('itests', () => {
         includesStackTrace: true
       })
     );
+});
+
+gulp.task('start-server', () => {
+  console.log('Starting server...');
+});
+
+gulp.task('stop-server', () => {
+  console.log('Stoping server...');
 });
 
 gulp.task('tests', ['utests', 'itests']);

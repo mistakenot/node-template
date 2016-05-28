@@ -1,6 +1,6 @@
 var faker = require('faker');
-var db = require('./../../mock-db');
 var log = load.log(module);
+var db = require('./../../mock-db');
 
 describe('User model', () => {
   var User, createdUser;
@@ -15,6 +15,8 @@ describe('User model', () => {
     .catch(fail);
   });
 
+  afterAll(db.disconnect);
+
   it('should register a new user', done => {
     User.register({ username: username }, password, (error, user) => {
       expect(error).toBeNull();
@@ -27,6 +29,32 @@ describe('User model', () => {
   it('should find a created user', done => {
     User.findByUsername(username, (error, user) => {
       expect(error).toBeNull();
+      expect(user.username).toEqual(createdUser.username);
+      done();
+    });
+  });
+
+  it('should verify an existing user', done => {
+      User.verifyEmail(createdUser.authToken, (err, user) => {
+        expect(err).toBeNull();
+        expect(user.username).toEqual(createdUser.username);
+        done();
+      });
+  });
+
+  it('should authenticate a created user', done => {
+    User.authenticate()(username, password, (err, user, msg) => {
+      expect(err).toBeNull();
+      expect(msg).toBeUndefined();
+      expect(user.username).toEqual(createdUser.username);
+      createdUser = user;
+      done();
+    });
+  });
+
+  it('should retrieve a user by auth token', done => {
+    User.findByAuthToken(createdUser.authToken, (err, user) => {
+      expect(err).toBeNull();
       expect(user.username).toEqual(createdUser.username);
       done();
     });

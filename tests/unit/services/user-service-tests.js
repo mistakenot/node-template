@@ -25,9 +25,10 @@ describe('User service', () => {
       .then(u => {
         expect(u.username).toEqual(username);
         expect(u.id).toBeDefined();
+        expect(u.authToken).toBeDefined();
         done();
       })
-      .catch(log.error);
+      .catch(fail);
   });
 
   it('should get a user by username', done => {
@@ -39,6 +40,7 @@ describe('User service', () => {
         retrievedUser = u;
         done();
       })
+      .catch(fail);
   });
 
   it('should get a user by id', done => {
@@ -49,12 +51,34 @@ describe('User service', () => {
         expect(u.username).toEqual(username);
         done();
       })
+      .catch(fail);
   });
 
   it('should reject an invalid password', done => {
     service
       .createWithPassword(faker.internet.email(), undefined)
-      .then(undefined, done);
+      .then(undefined, done)
+      .catch(fail);
   });
+
+  it('should verify a created user', done => {
+    service
+      .verify(retrievedUser.authToken)
+      .then(result => {
+        expect(result.isAuthenticated).toEqual(true);
+        done();
+      })
+      .catch(fail);
+  });
+
+  it('should get a user by auth token', done => {
+    service
+      .getByAuthToken(retrievedUser.authToken)
+      .then(result => {
+        expect(result.username).toEqual(retrievedUser.username);
+        done();
+      })
+      .catch(fail);
+  })
 
 });
