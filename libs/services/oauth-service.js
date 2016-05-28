@@ -7,116 +7,51 @@ var libs = process.cwd() + '/libs/';
 var config = require(libs + 'config');
 var log = require(libs + 'log')(module);
 
-var db = require(libs + 'db/mongoose');
-var models = require('./../models')(db);
-var User = models.user;
-var AccessToken = require(libs + 'model/accessToken');
-var RefreshToken = require(libs + 'model/refreshToken');
+module.exports = (UserService, AccessToken, RefreshToken) => {
+	var server = oauth2orize.createServer();
 
-// create OAuth 2.0 server
-var aserver = oauth2orize.createServer();
+	var exchangeWithPassword = (username, password) => {
+		return new Promise((resolve, reject) => {
+			UserService
+				.login(username, password)
+				.then(user => {
+					if (!user) return reject('User not found: ' + username);
 
-// Generic error handler
-var errFn = function (cb, err) {
-	if (err) {
-		return cb(err);
+					var tokenData = {
+						userId: user.id,
+						clientId: 'local'
+						token: crypto.randomBytes(32).toString('hex'),
+					};
+
+					var accessToken = AccessToken.create(
+						tokenData,
+						(error, token) => {
+							if (error) return reject(error);
+							else return resolve(token);
+						}
+					);
+				}
+			);
+		})
 	}
-};
 
-// Destroys any old tokens and generates a new access and refresh token
-var generateTokens = function (data, done) {
-
-	// curries in `done` callback so we don't need to pass it
-    var errorHandler = errFn.bind(undefined, done),
-	    refreshToken,
-	    refreshTokenValue,
-	    token,
-	    tokenValue;
-
-    RefreshToken.remove(data, errorHandler);
-    AccessToken.remove(data, errorHandler);
-
-    tokenValue = crypto.randomBytes(32).toString('hex');
-    refreshTokenValue = crypto.randomBytes(32).toString('hex');
-
-    data.token = tokenValue;
-    token = new AccessToken(data);
-
-    data.token = refreshTokenValue;
-    refreshToken = new RefreshToken(data);
-
-    refreshToken.save(errorHandler);
-
-    token.save(function (err) {
-    	if (err) {
-
-			log.error(err);
-    		return done(err);
-    	}
-    	done(null, tokenValue, refreshTokenValue, {
-    		'expires_in': config.get('security:tokenLife')
-    	});
-    });
-};
-
-// Exchange username & password for access token.
-aserver.exchange(oauth2orize.exchange.password(function(client, username, password, scope, done) {
-	log.debug(username);
-	User.findOne({ username: username }, function(err, user) {
-
-		if (err) {
-			return done(err);
-		}
-
-		if (!user || !user.checkPassword(password)) {
-			return done(null, false);
-		}
-
-		var model = {
-			userId: user.userId,
-			clientId: client.clientId
-		};
-
-		generateTokens(model, done);
+	server.exchange(oauth2orize.exchange.password(function(client, username, password, scope, done) {
+		exchangeForPassword(username, password)
+			.then(token => {
+				done(token, true);
+			})
+			.catch(err => {
+				done(err, false);
+			})
 	});
 
-}));
+	return {
+		exchangeWithPassword: exchangeWithPassword,
+		token: [
+			passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
+			aserver.token(),
+			aserver.errorHandler()
+		]
+	};
 
-// Exchange refreshToken for access token.
-aserver.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken, scope, done) {
-
-	RefreshToken.findOne({ token: refreshToken, clientId: client.clientId }, function(err, token) {
-		if (err) {
-			return done(err);
-		}
-
-		if (!token) {
-			return done(null, false);
-		}
-
-		User.findById(token.userId, function(err, user) {
-			if (err) { return done(err); }
-			if (!user) { return done(null, false); }
-
-			var model = {
-				userId: user.userId,
-				clientId: client.clientId
-			};
-
-			generateTokens(model, done);
-		});
-	});
-}));
-
-// token endpoint
-//
-// `token` middleware handles client requests to exchange authorization grants
-// for access tokens.  Based on the grant type being exchanged, the above
-// exchange middleware will be invoked to handle the request.  Clients must
-// authenticate when making requests to this endpoint.
-
-exports.token = [
-	passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
-	aserver.token(),
-	aserver.errorHandler()
-];
+}

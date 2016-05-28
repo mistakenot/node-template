@@ -46,4 +46,8 @@ describe('User API', () => {
       })
     )
   });
+
+  it('logs in a verified user with username and password with GET', done => {
+    fail('not implemented');
+  })
 });

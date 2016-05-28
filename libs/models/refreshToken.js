@@ -1,7 +1,8 @@
-var mongoose = require('mongoose'),
-    Schema = mongoose.Schema,
+var RefreshTokenModel;
 
-    RefreshToken = new Schema({
+module.exports = (mongoose) => {
+  if(!RefreshToken) {
+    var RefreshTokenSchema = new mongoose.Schema({
         userId: {
             type: String,
             required: true
@@ -21,4 +22,8 @@ var mongoose = require('mongoose'),
         }
     });
 
-module.exports = mongoose.model('RefreshToken', RefreshToken);
+    RefreshTokenModel = mongoose.model('RefreshToken', RefreshTokenSchema);
+  }
+
+  return RefreshTokenModel;
+}
